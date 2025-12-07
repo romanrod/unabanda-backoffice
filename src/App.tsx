@@ -36,6 +36,8 @@ const theme = createTheme({
 });
 
 const App: React.FC = () => {
+  console.log('📱 [APP] App component rendering');
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
