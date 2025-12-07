@@ -25,30 +25,40 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  console.log('🔐 [AUTH] AuthProvider initializing');
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is already logged in
     const initAuth = async () => {
+      console.log('🔐 [AUTH] initAuth started');
       const token = localStorage.getItem('access_token');
+      console.log('🔐 [AUTH] Token found:', !!token);
+
       if (token) {
         try {
+          console.log('🔐 [AUTH] Calling api.getCurrentUser()...');
           const currentUser = await api.getCurrentUser();
+          console.log('🔐 [AUTH] Current user:', currentUser);
+
           // Only allow admin users
           if (currentUser.role === 'admin') {
+            console.log('🔐 [AUTH] User is admin, setting user state');
             setUser(currentUser);
           } else {
             // Not an admin, logout
+            console.log('🔐 [AUTH] User is not admin, clearing tokens');
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
           }
         } catch (error) {
-          console.error('Failed to get current user:', error);
+          console.error('🔐 [AUTH] Failed to get current user:', error);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
         }
       }
+      console.log('🔐 [AUTH] Setting loading to false');
       setLoading(false);
     };
 
@@ -91,6 +101,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isAuthenticated: !!user,
   };
+
+  console.log('🔐 [AUTH] AuthProvider rendering, loading:', loading, 'isAuthenticated:', !!user);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

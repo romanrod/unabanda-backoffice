@@ -18,10 +18,14 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
+console.log('🌐 [API] API Base URL:', API_BASE_URL);
+console.log('🌐 [API] Environment variables:', import.meta.env);
+
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
+    console.log('🌐 [API] Creating API client with base URL:', API_BASE_URL);
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -32,19 +36,28 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       (config) => {
+        console.log('🌐 [API] Request:', config.method?.toUpperCase(), config.url);
         const token = localStorage.getItem('access_token');
         if (token) {
+          console.log('🌐 [API] Adding auth token to request');
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        console.error('🌐 [API] Request error:', error);
+        return Promise.reject(error);
+      }
     );
 
     // Response interceptor for error handling
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log('🌐 [API] Response:', response.status, response.config.url);
+        return response;
+      },
       async (error: AxiosError) => {
+        console.error('🌐 [API] Response error:', error.message, error.response?.status);
         if (error.response?.status === 401) {
           // Token expired, try to refresh
           const refreshToken = localStorage.getItem('refresh_token');
