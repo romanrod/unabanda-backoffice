@@ -16,8 +16,9 @@ import type {
   DashboardStats,
 } from '../types';
 
-// Use empty string in development to leverage Vite proxy, otherwise use env var or default
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '' : 'http://localhost:8000');
+// In development mode, use empty string to leverage Vite proxy
+// In production, use env var or default to backend URL
+const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000');
 
 console.log('🌐 [API] API Base URL:', API_BASE_URL);
 console.log('🌐 [API] Environment variables:', import.meta.env);
