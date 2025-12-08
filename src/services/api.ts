@@ -16,10 +16,12 @@ import type {
   DashboardStats,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// Use empty string in development to leverage Vite proxy, otherwise use env var or default
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '' : 'http://localhost:8000');
 
 console.log('🌐 [API] API Base URL:', API_BASE_URL);
 console.log('🌐 [API] Environment variables:', import.meta.env);
+console.log('🌐 [API] Development mode:', import.meta.env.DEV);
 
 class ApiClient {
   private client: AxiosInstance;
