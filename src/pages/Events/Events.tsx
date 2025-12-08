@@ -44,6 +44,7 @@ export const Events: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<{ id: string; name: string } | null>(null);
   const [formData, setFormData] = useState<CreateEventDto>({
     name: '',
     description: '',
@@ -162,18 +163,18 @@ export const Events: React.FC = () => {
   };
 
   const handleDeleteClick = (event: Event) => {
-    setSelectedEvent(event);
+    setEventToDelete({ id: event._id, name: event.name });
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedEvent) return;
+    if (!eventToDelete) return;
 
     try {
-      await api.deleteEvent(selectedEvent._id);
+      await api.deleteEvent(eventToDelete.id);
       showNotification('Event deleted successfully', 'success');
       setDeleteDialogOpen(false);
-      setSelectedEvent(null);
+      setEventToDelete(null);
       loadEvents();
     } catch (error: any) {
       console.error('Failed to delete event:', error);
@@ -411,15 +412,15 @@ export const Events: React.FC = () => {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog open={deleteDialogOpen} onClose={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete event "{selectedEvent?.name}"? This action cannot be undone.
+            Are you sure you want to delete event "{eventToDelete?.name}"? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>Cancel</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
             Delete
           </Button>
