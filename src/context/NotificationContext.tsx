@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Snackbar, Alert, AlertColor } from '@mui/material';
+import { Snackbar, Alert, type AlertColor } from '@mui/material';
 
 interface NotificationContextType {
   showNotification: (message: string, severity?: AlertColor) => void;
