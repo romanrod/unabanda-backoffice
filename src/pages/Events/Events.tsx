@@ -45,6 +45,7 @@ export const Events: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [eventToDelete, setEventToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CreateEventDto>({
     name: '',
     description: '',
@@ -80,6 +81,7 @@ export const Events: React.FC = () => {
   const handleOpenDialog = (event?: Event) => {
     if (event) {
       setSelectedEvent(event);
+      setEditingEventId(event._id);
       setFormData({
         name: event.name,
         description: event.description,
@@ -89,6 +91,7 @@ export const Events: React.FC = () => {
       });
     } else {
       setSelectedEvent(null);
+      setEditingEventId(null);
       setFormData({
         name: '',
         description: '',
@@ -103,6 +106,7 @@ export const Events: React.FC = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedEvent(null);
+    setEditingEventId(null);
   };
 
   const handleAddFunction = () => {
@@ -127,7 +131,7 @@ export const Events: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      if (selectedEvent) {
+      if (editingEventId) {
         // Update event
         const updateData: UpdateEventDto = {
           name: formData.name,
@@ -135,7 +139,7 @@ export const Events: React.FC = () => {
           category: formData.category,
           location: formData.location,
         };
-        await api.updateEvent(selectedEvent._id, updateData);
+        await api.updateEvent(editingEventId, updateData);
         showNotification('Event updated successfully', 'success');
       } else {
         // Create event
@@ -278,7 +282,7 @@ export const Events: React.FC = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>{selectedEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+        <DialogTitle>{editingEventId ? 'Edit Event' : 'Create New Event'}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
             <TextField
@@ -330,7 +334,7 @@ export const Events: React.FC = () => {
               Functions/Shows
             </Typography>
 
-            {!selectedEvent && (
+            {!editingEventId && (
               <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
                 <Typography variant="subtitle2" gutterBottom>
                   Add Function
@@ -392,7 +396,7 @@ export const Events: React.FC = () => {
                       {format(new Date(func.date_time), 'MMM dd, yyyy HH:mm')} - {func.duration_minutes}min -
                       Capacity: {func.capacity}
                     </Typography>
-                    {!selectedEvent && (
+                    {!editingEventId && (
                       <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -405,8 +409,8 @@ export const Events: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={formData.functions.length === 0 && !selectedEvent}>
-            {selectedEvent ? 'Update' : 'Create'}
+          <Button onClick={handleSubmit} variant="contained" disabled={formData.functions.length === 0 && !editingEventId}>
+            {editingEventId ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
