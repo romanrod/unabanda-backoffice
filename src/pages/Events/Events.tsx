@@ -44,6 +44,8 @@ export const Events: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CreateEventDto>({
     name: '',
     description: '',
@@ -79,6 +81,7 @@ export const Events: React.FC = () => {
   const handleOpenDialog = (event?: Event) => {
     if (event) {
       setSelectedEvent(event);
+      setEditingEventId(event._id);
       setFormData({
         name: event.name,
         description: event.description,
@@ -88,6 +91,7 @@ export const Events: React.FC = () => {
       });
     } else {
       setSelectedEvent(null);
+      setEditingEventId(null);
       setFormData({
         name: '',
         description: '',
@@ -102,6 +106,7 @@ export const Events: React.FC = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedEvent(null);
+    setEditingEventId(null);
   };
 
   const handleAddFunction = () => {
@@ -126,7 +131,7 @@ export const Events: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      if (selectedEvent) {
+      if (editingEventId) {
         // Update event
         const updateData: UpdateEventDto = {
           name: formData.name,
@@ -134,7 +139,7 @@ export const Events: React.FC = () => {
           category: formData.category,
           location: formData.location,
         };
-        await api.updateEvent(selectedEvent._id, updateData);
+        await api.updateEvent(editingEventId, updateData);
         showNotification('Event updated successfully', 'success');
       } else {
         // Create event
@@ -162,18 +167,18 @@ export const Events: React.FC = () => {
   };
 
   const handleDeleteClick = (event: Event) => {
-    setSelectedEvent(event);
+    setEventToDelete({ id: event._id, name: event.name });
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedEvent) return;
+    if (!eventToDelete) return;
 
     try {
-      await api.deleteEvent(selectedEvent._id);
+      await api.deleteEvent(eventToDelete.id);
       showNotification('Event deleted successfully', 'success');
       setDeleteDialogOpen(false);
-      setSelectedEvent(null);
+      setEventToDelete(null);
       loadEvents();
     } catch (error: any) {
       console.error('Failed to delete event:', error);
@@ -277,7 +282,7 @@ export const Events: React.FC = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>{selectedEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+        <DialogTitle>{editingEventId ? 'Edit Event' : 'Create New Event'}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
             <TextField
@@ -329,7 +334,7 @@ export const Events: React.FC = () => {
               Functions/Shows
             </Typography>
 
-            {!selectedEvent && (
+            {!editingEventId && (
               <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
                 <Typography variant="subtitle2" gutterBottom>
                   Add Function
@@ -391,7 +396,7 @@ export const Events: React.FC = () => {
                       {format(new Date(func.date_time), 'MMM dd, yyyy HH:mm')} - {func.duration_minutes}min -
                       Capacity: {func.capacity}
                     </Typography>
-                    {!selectedEvent && (
+                    {!editingEventId && (
                       <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -404,22 +409,22 @@ export const Events: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={formData.functions.length === 0 && !selectedEvent}>
-            {selectedEvent ? 'Update' : 'Create'}
+          <Button onClick={handleSubmit} variant="contained" disabled={formData.functions.length === 0 && !editingEventId}>
+            {editingEventId ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog open={deleteDialogOpen} onClose={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete event "{selectedEvent?.name}"? This action cannot be undone.
+            Are you sure you want to delete event "{eventToDelete?.name}"? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>Cancel</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
             Delete
           </Button>
