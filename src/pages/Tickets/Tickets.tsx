@@ -67,21 +67,37 @@ export const Tickets: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [ticketsData, eventsData] = await Promise.all([
-        api.getTickets(),
-        api.getAllEventsAdmin(),
-      ]);
-      setTickets(ticketsData);
+
+      // Load events and tickets independently so one failure doesn't block the other
+      const eventsPromise = api.getAllEventsAdmin().catch((error) => {
+        console.error('Failed to load events:', error);
+        showNotification('Failed to load events', 'error');
+        return [];
+      });
+
+      const ticketsPromise = api.getTickets().catch((error) => {
+        console.error('Failed to load tickets:', error);
+        showNotification('Failed to load tickets', 'error');
+        return [];
+      });
+
+      const [eventsData, ticketsData] = await Promise.all([eventsPromise, ticketsPromise]);
+
+      console.log('📊 [Tickets] Loaded events:', eventsData);
+      console.log('📊 [Tickets] Events count:', eventsData.length);
       setEvents(eventsData);
+      setTickets(ticketsData);
     } catch (error: any) {
-      console.error('Failed to load data:', error);
-      showNotification('Failed to load tickets', 'error');
+      console.error('Unexpected error loading data:', error);
+      showNotification('An unexpected error occurred', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const handleOpenDialog = (ticket?: Ticket) => {
+    console.log('🎫 [Tickets] Opening dialog, events available:', events.length);
+    console.log('🎫 [Tickets] Events:', events);
     if (ticket) {
       setSelectedTicket(ticket);
       const event = events.find(e => e._id === ticket.event_id);
@@ -276,9 +292,11 @@ export const Tickets: React.FC = () => {
                   getOptionLabel={(option) => option.name}
                   value={selectedEventForForm}
                   onChange={(_, newValue) => handleEventChange(newValue)}
+                  isOptionEqualToValue={(option, value) => option._id === value._id}
+                  noOptionsText={events.length === 0 ? "No events available. Please create an event first." : "No options"}
                   renderInput={(params) => <TextField {...params} label="Event" required />}
                 />
-                {selectedEventForForm && (
+                {selectedEventForForm && selectedEventForForm.functions.length > 0 && (
                   <FormControl fullWidth>
                     <InputLabel>Function/Show</InputLabel>
                     <Select
@@ -294,6 +312,11 @@ export const Tickets: React.FC = () => {
                       ))}
                     </Select>
                   </FormControl>
+                )}
+                {selectedEventForForm && selectedEventForForm.functions.length === 0 && (
+                  <Typography color="error" variant="body2">
+                    This event has no functions/shows. Please add functions to the event first.
+                  </Typography>
                 )}
               </>
             )}
