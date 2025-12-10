@@ -163,12 +163,40 @@ class ApiClient {
   }
 
   async createEvent(data: CreateEventDto): Promise<Event> {
-    const response = await this.client.post<Event>('/api/events/', data);
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('description', data.description);
+    formData.append('category', data.category);
+    formData.append('location', data.location);
+    formData.append('functions', JSON.stringify(data.functions));
+
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+
+    const response = await this.client.post<Event>('/api/events/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 
   async updateEvent(id: string, data: UpdateEventDto): Promise<Event> {
-    const response = await this.client.put<Event>(`/api/events/${id}`, data);
+    const formData = new FormData();
+
+    if (data.name !== undefined) formData.append('name', data.name);
+    if (data.description !== undefined) formData.append('description', data.description);
+    if (data.category !== undefined) formData.append('category', data.category);
+    if (data.location !== undefined) formData.append('location', data.location);
+    if (data.status !== undefined) formData.append('status', data.status);
+    if (data.image) formData.append('image', data.image);
+
+    const response = await this.client.put<Event>(`/api/events/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 

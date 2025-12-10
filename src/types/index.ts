@@ -56,6 +56,7 @@ export interface CreateEventDto {
   category: EventCategory;
   location: string;
   functions: Omit<EventFunction, 'id'>[];
+  image?: File; // Event image file (required for creation)
 }
 
 export interface UpdateEventDto {
@@ -64,6 +65,7 @@ export interface UpdateEventDto {
   category?: EventCategory;
   location?: string;
   status?: EventStatus;
+  image?: File; // Event image file (optional for updates)
 }
 
 // Ticket types
