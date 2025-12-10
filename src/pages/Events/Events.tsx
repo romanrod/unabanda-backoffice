@@ -32,6 +32,7 @@ import {
   Delete as DeleteIcon,
   Refresh as RefreshIcon,
   Publish as PublishIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { api } from '../../services/api';
@@ -59,6 +60,8 @@ export const Events: React.FC = () => {
     capacity: 100,
     available_seats: 100,
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { showNotification } = useNotification();
 
   // Helper function to safely get event ID (handles both _id and id)
@@ -100,6 +103,10 @@ export const Events: React.FC = () => {
         location: event.location,
         functions: event.functions,
       });
+      // Set image preview from existing event if available
+      if (event.images && event.images.length > 0) {
+        setImagePreview(event.images[0]);
+      }
     } else {
       console.log('➕ [Events] Opening create dialog');
       setSelectedEvent(null);
@@ -111,6 +118,8 @@ export const Events: React.FC = () => {
         location: '',
         functions: [],
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     }
     setDialogOpen(true);
   };
@@ -119,6 +128,8 @@ export const Events: React.FC = () => {
     setDialogOpen(false);
     setSelectedEvent(null);
     setEditingEventId(null);
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const handleAddFunction = () => {
@@ -141,6 +152,32 @@ export const Events: React.FC = () => {
     });
   };
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showNotification('Please select a valid image file', 'error');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('Image file size must be less than 5MB', 'error');
+        return;
+      }
+
+      setSelectedImage(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       if (editingEventId) {
@@ -151,11 +188,24 @@ export const Events: React.FC = () => {
           category: formData.category,
           location: formData.location,
         };
+        // Add image if a new one was selected
+        if (selectedImage) {
+          updateData.image = selectedImage;
+        }
         await api.updateEvent(editingEventId, updateData);
         showNotification('Event updated successfully', 'success');
       } else {
-        // Create event
-        await api.createEvent(formData);
+        // Create event - image is required
+        if (!selectedImage) {
+          showNotification('Event image is required', 'error');
+          return;
+        }
+
+        const createData: CreateEventDto = {
+          ...formData,
+          image: selectedImage,
+        };
+        await api.createEvent(createData);
         showNotification('Event created successfully', 'success');
       }
       handleCloseDialog();
@@ -345,6 +395,43 @@ export const Events: React.FC = () => {
               </Grid>
             </Grid>
 
+            {/* Image Upload Section */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Event Image {!editingEventId && <span style={{ color: 'red' }}>*</span>}
+              </Typography>
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                fullWidth
+                sx={{ mb: 2 }}
+              >
+                {selectedImage ? selectedImage.name : 'Upload Image'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageChange}
+                />
+              </Button>
+              {imagePreview && (
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                  <img
+                    src={imagePreview}
+                    alt="Event preview"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '300px',
+                      objectFit: 'contain',
+                      borderRadius: '8px',
+                      border: '1px solid #ddd',
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
+
             <Typography variant="h6" sx={{ mt: 2 }}>
               Functions/Shows
             </Typography>
@@ -424,7 +511,14 @@ export const Events: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={formData.functions.length === 0 && !editingEventId}>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={
+              (!editingEventId && (formData.functions.length === 0 || !selectedImage)) ||
+              (editingEventId && false) // Always enabled for edit
+            }
+          >
             {editingEventId ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
