@@ -60,6 +60,13 @@ export const Tickets: React.FC = () => {
   });
   const { showNotification } = useNotification();
 
+  // Helper function to safely get event ID (handles both _id and id)
+  const getEventId = (event: any): string => {
+    const id = event._id || event.id;
+    console.log('🔑 [Tickets] Getting event ID:', { _id: event._id, id: event.id, resolved: id });
+    return id;
+  };
+
   useEffect(() => {
     loadData();
   }, []);
@@ -100,7 +107,7 @@ export const Tickets: React.FC = () => {
     console.log('🎫 [Tickets] Events:', events);
     if (ticket) {
       setSelectedTicket(ticket);
-      const event = events.find(e => e._id === ticket.event_id);
+      const event = events.find(e => getEventId(e) === ticket.event_id);
       setSelectedEventForForm(event || null);
       setFormData({
         event_id: ticket.event_id,
@@ -138,10 +145,13 @@ export const Tickets: React.FC = () => {
   };
 
   const handleEventChange = (event: Event | null) => {
+    console.log('🎫 [Tickets] Event changed:', event);
+    const eventId = event ? getEventId(event) : '';
+    console.log('🎫 [Tickets] Resolved event ID:', eventId);
     setSelectedEventForForm(event);
     setFormData({
       ...formData,
-      event_id: event?._id || '',
+      event_id: eventId,
       function_id: '',
     });
   };
@@ -195,7 +205,7 @@ export const Tickets: React.FC = () => {
   };
 
   const getEventName = (eventId: string) => {
-    return events.find(e => e._id === eventId)?.name || 'Unknown Event';
+    return events.find(e => getEventId(e) === eventId)?.name || 'Unknown Event';
   };
 
   if (loading) {
@@ -292,7 +302,7 @@ export const Tickets: React.FC = () => {
                   getOptionLabel={(option) => option.name}
                   value={selectedEventForForm}
                   onChange={(_, newValue) => handleEventChange(newValue)}
-                  isOptionEqualToValue={(option, value) => option._id === value._id}
+                  isOptionEqualToValue={(option, value) => getEventId(option) === getEventId(value)}
                   noOptionsText={events.length === 0 ? "No events available. Please create an event first." : "No options"}
                   renderInput={(params) => <TextField {...params} label="Event" required />}
                 />
