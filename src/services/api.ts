@@ -171,7 +171,7 @@ class ApiClient {
     formData.append('functions', JSON.stringify(data.functions));
 
     if (data.image) {
-      formData.append('image', data.image);
+      formData.append('images', data.image);
     }
 
     const response = await this.client.post<Event>('/api/events/', formData, {
@@ -190,7 +190,7 @@ class ApiClient {
     if (data.category !== undefined) formData.append('category', data.category);
     if (data.location !== undefined) formData.append('location', data.location);
     if (data.status !== undefined) formData.append('status', data.status);
-    if (data.image) formData.append('image', data.image);
+    if (data.image) formData.append('images', data.image);
 
     const response = await this.client.put<Event>(`/api/events/${id}`, formData, {
       headers: {
