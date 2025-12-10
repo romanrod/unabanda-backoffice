@@ -61,6 +61,13 @@ export const Events: React.FC = () => {
   });
   const { showNotification } = useNotification();
 
+  // Helper function to safely get event ID (handles both _id and id)
+  const getEventId = (event: any): string => {
+    const id = event._id || event.id;
+    console.log('🔑 [Events] Getting event ID:', { _id: event._id, id: event.id, resolved: id });
+    return id;
+  };
+
   useEffect(() => {
     loadEvents();
   }, []);
@@ -69,6 +76,8 @@ export const Events: React.FC = () => {
     try {
       setLoading(true);
       const data = await api.getAllEventsAdmin();
+      console.log('📊 [Events] Loaded events:', data);
+      console.log('📊 [Events] First event structure:', data[0]);
       setEvents(data);
     } catch (error: any) {
       console.error('Failed to load events:', error);
@@ -80,8 +89,10 @@ export const Events: React.FC = () => {
 
   const handleOpenDialog = (event?: Event) => {
     if (event) {
+      const eventId = getEventId(event);
+      console.log('✏️ [Events] Opening edit dialog for event:', eventId, event);
       setSelectedEvent(event);
-      setEditingEventId(event._id);
+      setEditingEventId(eventId);
       setFormData({
         name: event.name,
         description: event.description,
@@ -90,6 +101,7 @@ export const Events: React.FC = () => {
         functions: event.functions,
       });
     } else {
+      console.log('➕ [Events] Opening create dialog');
       setSelectedEvent(null);
       setEditingEventId(null);
       setFormData({
@@ -156,18 +168,21 @@ export const Events: React.FC = () => {
   };
 
   const handlePublish = async (eventId: string) => {
+    console.log('📢 [Events] Publishing event:', eventId);
     try {
       await api.publishEvent(eventId);
       showNotification('Event published successfully', 'success');
       loadEvents();
     } catch (error: any) {
-      console.error('Failed to publish event:', error);
+      console.error('❌ [Events] Failed to publish event:', error);
       showNotification('Failed to publish event', 'error');
     }
   };
 
   const handleDeleteClick = (event: Event) => {
-    setEventToDelete({ id: event._id, name: event.name });
+    const eventId = getEventId(event);
+    console.log('🗑️ [Events] Delete clicked for event:', eventId, event.name);
+    setEventToDelete({ id: eventId, name: event.name });
     setDeleteDialogOpen(true);
   };
 
@@ -249,7 +264,7 @@ export const Events: React.FC = () => {
                   </TableRow>
                 ) : (
                   events.map((event) => (
-                    <TableRow key={event._id} hover>
+                    <TableRow key={getEventId(event)} hover>
                       <TableCell>{event.name}</TableCell>
                       <TableCell sx={{ textTransform: 'capitalize' }}>{event.category}</TableCell>
                       <TableCell>{event.location}</TableCell>
@@ -260,7 +275,7 @@ export const Events: React.FC = () => {
                       <TableCell>{format(new Date(event.created_at), 'MMM dd, yyyy')}</TableCell>
                       <TableCell align="right">
                         {event.status === 'draft' && (
-                          <IconButton size="small" onClick={() => handlePublish(event._id)} title="Publish">
+                          <IconButton size="small" onClick={() => handlePublish(getEventId(event))} title="Publish">
                             <PublishIcon fontSize="small" />
                           </IconButton>
                         )}
