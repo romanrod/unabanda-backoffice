@@ -39,6 +39,16 @@ import { api } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import type { Event, CreateEventDto, UpdateEventDto, EventCategory, EventStatus, EventFunction } from '../../types';
 
+// Helper function to get full image URL
+const getImageUrl = (path: string): string => {
+  if (!path) return '';
+  // If path already starts with http, return as is
+  if (path.startsWith('http')) return path;
+  // Otherwise, prepend API base URL
+  const baseUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000');
+  return `${baseUrl}${path}`;
+};
+
 export const Events: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,8 +115,11 @@ export const Events: React.FC = () => {
       });
       // Set image preview from existing event if available
       if (event.images && event.images.length > 0) {
-        setImagePreview(event.images[0]);
+        setImagePreview(getImageUrl(event.images[0]));
+      } else {
+        setImagePreview(null);
       }
+      setSelectedImage(null);
     } else {
       console.log('➕ [Events] Opening create dialog');
       setSelectedEvent(null);
