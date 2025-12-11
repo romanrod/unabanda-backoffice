@@ -44,8 +44,9 @@ const getImageUrl = (path: string): string => {
   if (!path) return '';
   // If path already starts with http, return as is
   if (path.startsWith('http')) return path;
-  // Otherwise, prepend API base URL
-  const baseUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000');
+  // Static files (uploads) always need the backend URL, even in dev mode
+  // because Vite proxy only handles /api/* routes, not /uploads/*
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   return `${baseUrl}${path}`;
 };
 
