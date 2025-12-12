@@ -11,6 +11,9 @@ import { Users } from './pages/Users/Users';
 import { Events } from './pages/Events/Events';
 import { Tickets } from './pages/Tickets/Tickets';
 import { Bookings } from './pages/Bookings/Bookings';
+import { Banners } from './pages/Banners/Banners';
+import { AccessControl } from './pages/AccessControl/AccessControl';
+import { Billing } from './pages/Billing/Billing';
 import { Settings } from './pages/Dashboard/Settings';
 
 const theme = createTheme({
@@ -59,6 +62,9 @@ const App: React.FC = () => {
                 <Route path="events" element={<Events />} />
                 <Route path="tickets" element={<Tickets />} />
                 <Route path="bookings" element={<Bookings />} />
+                <Route path="banners" element={<Banners />} />
+                <Route path="access-control" element={<AccessControl />} />
+                <Route path="billing" element={<Billing />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
