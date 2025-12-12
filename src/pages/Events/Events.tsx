@@ -288,8 +288,8 @@ export const Events: React.FC = () => {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" fontWeight="bold">
           Events Management
         </Typography>
@@ -303,8 +303,8 @@ export const Events: React.FC = () => {
         </Box>
       </Box>
 
-      <Card elevation={2}>
-        <CardContent>
+      <Card elevation={2} sx={{ width: '100%' }}>
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           <TableContainer component={Paper} variant="outlined">
             <Table>
               <TableHead>

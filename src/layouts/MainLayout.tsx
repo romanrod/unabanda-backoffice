@@ -27,6 +27,9 @@ import {
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   AccountCircle,
+  ViewCarousel as BannerIcon,
+  Security as AccessControlIcon,
+  Receipt as BillingIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -44,6 +47,9 @@ const navItems: NavItem[] = [
   { text: 'Events', icon: <EventIcon />, path: '/events' },
   { text: 'Tickets', icon: <TicketIcon />, path: '/tickets' },
   { text: 'Bookings', icon: <BookingIcon />, path: '/bookings' },
+  { text: 'Banners', icon: <BannerIcon />, path: '/banners' },
+  { text: 'Access Control', icon: <AccessControlIcon />, path: '/access-control' },
+  { text: 'Billing', icon: <BillingIcon />, path: '/billing' },
   { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
@@ -226,7 +232,7 @@ export const MainLayout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 1.5,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mt: 8,
           minHeight: '100vh',
