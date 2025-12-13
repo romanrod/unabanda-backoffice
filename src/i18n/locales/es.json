@@ -103,6 +103,8 @@
     "eventImage": "Imagen del Evento",
     "eventImageRequired": "La imagen del evento es requerida",
     "uploadImage": "Subir Imagen",
+    "imagePreview": "Vista Previa de Imagen",
+    "removeImage": "Eliminar Imagen",
     "invalidImageFile": "Por favor seleccione un archivo de imagen válido",
     "imageTooLarge": "El tamaño del archivo de imagen debe ser menor a 5MB",
     "functionsShows": "Funciones/Shows",

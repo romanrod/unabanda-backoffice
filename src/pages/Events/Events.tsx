@@ -178,6 +178,11 @@ export const Events: React.FC = () => {
     });
   };
 
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -213,6 +218,7 @@ export const Events: React.FC = () => {
           description: formData.description,
           category: formData.category,
           location: formData.location,
+          functions: formData.functions,
         };
         // Add image if a new one was selected
         if (selectedImage) {
@@ -454,18 +460,34 @@ export const Events: React.FC = () => {
                 />
               </Button>
               {imagePreview && (
-                <Box sx={{ mt: 2, textAlign: 'center' }}>
-                  <img
-                    src={imagePreview}
-                    alt="Event preview"
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '300px',
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                      border: '1px solid #ddd',
-                    }}
-                  />
+                <Box sx={{ mt: 2 }}>
+                  <Box sx={{ textAlign: 'center', mb: 2 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      {t('events.imagePreview')}
+                    </Typography>
+                    <img
+                      src={imagePreview}
+                      alt="Event preview"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '300px',
+                        objectFit: 'contain',
+                        borderRadius: '8px',
+                        border: '2px solid #1976d2',
+                        padding: '8px',
+                        backgroundColor: '#f5f5f5',
+                      }}
+                    />
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    fullWidth
+                    onClick={handleRemoveImage}
+                  >
+                    {t('events.removeImage')}
+                  </Button>
                 </Box>
               )}
             </Box>
@@ -474,70 +496,68 @@ export const Events: React.FC = () => {
               {t('events.functionsShows')}
             </Typography>
 
-            {!editingEventId && (
-              <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {t('events.addFunction')}
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      label={t('events.dateTime')}
-                      type="datetime-local"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                      value={newFunction.date_time}
-                      onChange={(e) => setNewFunction({ ...newFunction, date_time: e.target.value })}
-                    />
-                  </Grid>
-                  <Grid item xs={3} sm={1.5}>
-                    <TextField
-                      label={t('events.hours')}
-                      type="number"
-                      fullWidth
-                      inputProps={{ min: 0 }}
-                      value={newFunction.duration_hours}
-                      onChange={(e) => {
-                        const hours = Math.max(0, parseInt(e.target.value) || 0);
-                        const totalMinutes = (hours * 60) + newFunction.duration_mins;
-                        setNewFunction({ ...newFunction, duration_hours: hours, duration_minutes: totalMinutes });
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={3} sm={1.5}>
-                    <TextField
-                      label={t('events.minutes')}
-                      type="number"
-                      fullWidth
-                      inputProps={{ min: 0, max: 59 }}
-                      value={newFunction.duration_mins}
-                      onChange={(e) => {
-                        const mins = Math.min(59, Math.max(0, parseInt(e.target.value) || 0));
-                        const totalMinutes = (newFunction.duration_hours * 60) + mins;
-                        setNewFunction({ ...newFunction, duration_mins: mins, duration_minutes: totalMinutes });
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <TextField
-                      label={t('events.capacity')}
-                      type="number"
-                      fullWidth
-                      value={newFunction.capacity}
-                      onChange={(e) => {
-                        const capacity = parseInt(e.target.value);
-                        setNewFunction({ ...newFunction, capacity, available_seats: capacity });
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddFunction} fullWidth>
-                      {t('events.addFunction')}
-                    </Button>
-                  </Grid>
+            <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                {t('events.addFunction')}
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label={t('events.dateTime')}
+                    type="datetime-local"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={newFunction.date_time}
+                    onChange={(e) => setNewFunction({ ...newFunction, date_time: e.target.value })}
+                  />
                 </Grid>
-              </Box>
-            )}
+                <Grid item xs={3} sm={1.5}>
+                  <TextField
+                    label={t('events.hours')}
+                    type="number"
+                    fullWidth
+                    inputProps={{ min: 0 }}
+                    value={newFunction.duration_hours}
+                    onChange={(e) => {
+                      const hours = Math.max(0, parseInt(e.target.value) || 0);
+                      const totalMinutes = (hours * 60) + newFunction.duration_mins;
+                      setNewFunction({ ...newFunction, duration_hours: hours, duration_minutes: totalMinutes });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={3} sm={1.5}>
+                  <TextField
+                    label={t('events.minutes')}
+                    type="number"
+                    fullWidth
+                    inputProps={{ min: 0, max: 59 }}
+                    value={newFunction.duration_mins}
+                    onChange={(e) => {
+                      const mins = Math.min(59, Math.max(0, parseInt(e.target.value) || 0));
+                      const totalMinutes = (newFunction.duration_hours * 60) + mins;
+                      setNewFunction({ ...newFunction, duration_mins: mins, duration_minutes: totalMinutes });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <TextField
+                    label={t('events.capacity')}
+                    type="number"
+                    fullWidth
+                    value={newFunction.capacity}
+                    onChange={(e) => {
+                      const capacity = parseInt(e.target.value);
+                      setNewFunction({ ...newFunction, capacity, available_seats: capacity });
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddFunction} fullWidth>
+                    {t('events.addFunction')}
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
 
             {formData.functions.length > 0 && (
               <Box>
@@ -554,17 +574,15 @@ export const Events: React.FC = () => {
                   return (
                     <Box
                       key={index}
-                      sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'grey.50', mb: 1 }}
+                      sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: 'grey.50', mb: 1 }}
                     >
                       <Typography variant="body2">
                         {format(new Date(func.date_time), 'MMM dd, yyyy HH:mm')} - {durationDisplay.trim()} -
                         Capacity: {func.capacity}
                       </Typography>
-                      {!editingEventId && (
-                        <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      )}
+                      <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     </Box>
                   );
                 })}
