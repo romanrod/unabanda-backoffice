@@ -34,11 +34,13 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import type { User, CreateUserDto, UpdateUserDto, UserRole } from '../../types';
 
 export const Users: React.FC = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -63,7 +65,7 @@ export const Users: React.FC = () => {
       setUsers(data);
     } catch (error: any) {
       console.error('Failed to load users:', error);
-      showNotification('Failed to load users', 'error');
+      showNotification(t('users.failedToLoadUsers'), 'error');
     } finally {
       setLoading(false);
     }
@@ -110,17 +112,17 @@ export const Users: React.FC = () => {
           await api.updateUserRole(selectedUser._id, formData.role);
         }
 
-        showNotification('User updated successfully', 'success');
+        showNotification(t('users.userUpdatedSuccess'), 'success');
       } else {
         // Create user
         await api.createUser(formData);
-        showNotification('User created successfully', 'success');
+        showNotification(t('users.userCreatedSuccess'), 'success');
       }
       handleCloseDialog();
       loadUsers();
     } catch (error: any) {
       console.error('Failed to save user:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to save user';
+      const errorMessage = error.response?.data?.detail || t('users.failedToSaveUser');
       showNotification(errorMessage, 'error');
     }
   };
@@ -135,13 +137,13 @@ export const Users: React.FC = () => {
 
     try {
       await api.deleteUser(selectedUser._id);
-      showNotification('User deleted successfully', 'success');
+      showNotification(t('users.userDeletedSuccess'), 'success');
       setDeleteDialogOpen(false);
       setSelectedUser(null);
       loadUsers();
     } catch (error: any) {
       console.error('Failed to delete user:', error);
-      showNotification('Failed to delete user', 'error');
+      showNotification(t('users.failedToDeleteUser'), 'error');
     }
   };
 
@@ -168,14 +170,14 @@ export const Users: React.FC = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" fontWeight="bold">
-          Users Management
+          {t('users.title')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <IconButton onClick={loadUsers} color="primary">
             <RefreshIcon />
           </IconButton>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-            Add User
+            {t('users.addUser')}
           </Button>
         </Box>
       </Box>
@@ -186,19 +188,19 @@ export const Users: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Full Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell>{t('users.fullName')}</TableCell>
+                  <TableCell>{t('users.email')}</TableCell>
+                  <TableCell>{t('users.role')}</TableCell>
+                  <TableCell>{t('users.status')}</TableCell>
+                  <TableCell>{t('users.created')}</TableCell>
+                  <TableCell align="right">{t('users.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      No users found
+                      {t('users.noUsersFound')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -207,11 +209,11 @@ export const Users: React.FC = () => {
                       <TableCell>{user.full_name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Chip label={user.role} color={getRoleColor(user.role)} size="small" />
+                        <Chip label={t(`users.roles.${user.role}`)} color={getRoleColor(user.role)} size="small" />
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={user.is_active ? 'Active' : 'Inactive'}
+                          label={user.is_active ? t('users.active') : t('users.inactive')}
                           color={user.is_active ? 'success' : 'default'}
                           size="small"
                         />
@@ -236,18 +238,18 @@ export const Users: React.FC = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedUser ? 'Edit User' : 'Create New User'}</DialogTitle>
+        <DialogTitle>{selectedUser ? t('users.editUser') : t('users.createNewUser')}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
             <TextField
-              label="Full Name"
+              label={t('users.fullName')}
               fullWidth
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
               required
             />
             <TextField
-              label="Email"
+              label={t('users.email')}
               type="email"
               fullWidth
               value={formData.email}
@@ -256,49 +258,49 @@ export const Users: React.FC = () => {
             />
             {!selectedUser && (
               <TextField
-                label="Password"
+                label={t('users.password')}
                 type="password"
                 fullWidth
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                helperText="Minimum 8 characters"
+                helperText={t('users.passwordHelper')}
               />
             )}
             <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
+              <InputLabel>{t('users.role')}</InputLabel>
               <Select
                 value={formData.role}
-                label="Role"
+                label={t('users.role')}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
               >
-                <MenuItem value="end_user">End User</MenuItem>
-                <MenuItem value="creator">Creator</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="end_user">{t('users.roles.end_user')}</MenuItem>
+                <MenuItem value="creator">{t('users.roles.creator')}</MenuItem>
+                <MenuItem value="admin">{t('users.roles.admin')}</MenuItem>
               </Select>
             </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleCloseDialog}>{t('users.cancel')}</Button>
           <Button onClick={handleSubmit} variant="contained">
-            {selectedUser ? 'Update' : 'Create'}
+            {selectedUser ? t('users.update') : t('users.create')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>{t('users.confirmDelete')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete user "{selectedUser?.full_name}"? This action cannot be undone.
+            {t('users.deleteConfirmMessage', { userName: selectedUser?.full_name })}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('users.cancel')}</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Delete
+            {t('users.delete')}
           </Button>
         </DialogActions>
       </Dialog>
