@@ -238,13 +238,13 @@ export const Tickets: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Event</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                  <TableCell align="right">Available</TableCell>
-                  <TableCell align="right">Sold</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Event</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Price</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Available</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Sold</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>

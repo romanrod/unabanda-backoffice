@@ -334,13 +334,13 @@ export const Events: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('events.eventName')}</TableCell>
-                  <TableCell>{t('events.category')}</TableCell>
-                  <TableCell>{t('events.location')}</TableCell>
-                  <TableCell>{t('events.status')}</TableCell>
-                  <TableCell>{t('events.functions')}</TableCell>
-                  <TableCell>{t('events.created')}</TableCell>
-                  <TableCell align="right">{t('events.actions')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.eventName')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.category')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.location')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.status')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.functions')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('events.created')}</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>{t('events.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

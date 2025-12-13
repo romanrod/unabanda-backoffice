@@ -121,13 +121,13 @@ export const Bookings: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Booking ID</TableCell>
-                  <TableCell>User ID</TableCell>
-                  <TableCell>Event ID</TableCell>
-                  <TableCell align="right">Total Amount</TableCell>
-                  <TableCell>Payment Method</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Booking ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>User ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Event ID</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Total Amount</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Payment Method</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Created</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
