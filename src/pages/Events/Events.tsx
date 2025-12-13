@@ -35,6 +35,7 @@ import {
   CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import type { Event, CreateEventDto, UpdateEventDto, EventCategory, EventStatus, EventFunction } from '../../types';
@@ -50,6 +51,7 @@ const getImageUrl = (path: string): string => {
 };
 
 export const Events: React.FC = () => {
+  const { t } = useTranslation();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -96,7 +98,7 @@ export const Events: React.FC = () => {
       setEvents(data);
     } catch (error: any) {
       console.error('Failed to load events:', error);
-      showNotification('Failed to load events', 'error');
+      showNotification(t('events.failedToLoadEvents'), 'error');
     } finally {
       setLoading(false);
     }
@@ -181,13 +183,13 @@ export const Events: React.FC = () => {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        showNotification('Please select a valid image file', 'error');
+        showNotification(t('events.invalidImageFile'), 'error');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        showNotification('Image file size must be less than 5MB', 'error');
+        showNotification(t('events.imageTooLarge'), 'error');
         return;
       }
 
@@ -217,11 +219,11 @@ export const Events: React.FC = () => {
           updateData.image = selectedImage;
         }
         await api.updateEvent(editingEventId, updateData);
-        showNotification('Event updated successfully', 'success');
+        showNotification(t('events.eventUpdatedSuccess'), 'success');
       } else {
         // Create event - image is required
         if (!selectedImage) {
-          showNotification('Event image is required', 'error');
+          showNotification(t('events.eventImageRequired'), 'error');
           return;
         }
 
@@ -230,13 +232,13 @@ export const Events: React.FC = () => {
           image: selectedImage,
         };
         await api.createEvent(createData);
-        showNotification('Event created successfully', 'success');
+        showNotification(t('events.eventCreatedSuccess'), 'success');
       }
       handleCloseDialog();
       loadEvents();
     } catch (error: any) {
       console.error('Failed to save event:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to save event';
+      const errorMessage = error.response?.data?.detail || t('events.failedToSaveEvent');
       showNotification(errorMessage, 'error');
     }
   };
@@ -245,11 +247,11 @@ export const Events: React.FC = () => {
     console.log('📢 [Events] Publishing event:', eventId);
     try {
       await api.publishEvent(eventId);
-      showNotification('Event published successfully', 'success');
+      showNotification(t('events.eventPublishedSuccess'), 'success');
       loadEvents();
     } catch (error: any) {
       console.error('❌ [Events] Failed to publish event:', error);
-      showNotification('Failed to publish event', 'error');
+      showNotification(t('events.failedToPublishEvent'), 'error');
     }
   };
 
@@ -265,13 +267,13 @@ export const Events: React.FC = () => {
 
     try {
       await api.deleteEvent(eventToDelete.id);
-      showNotification('Event deleted successfully', 'success');
+      showNotification(t('events.eventDeletedSuccess'), 'success');
       setDeleteDialogOpen(false);
       setEventToDelete(null);
       loadEvents();
     } catch (error: any) {
       console.error('Failed to delete event:', error);
-      showNotification('Failed to delete event', 'error');
+      showNotification(t('events.failedToDeleteEvent'), 'error');
     }
   };
 
@@ -290,6 +292,10 @@ export const Events: React.FC = () => {
     }
   };
 
+  const getStatusLabel = (status: EventStatus) => {
+    return t(`events.statuses.${status}`, status);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -302,14 +308,14 @@ export const Events: React.FC = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" fontWeight="bold">
-          Events Management
+          {t('events.title')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <IconButton onClick={loadEvents} color="primary">
             <RefreshIcon />
           </IconButton>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
-            Add Event
+            {t('events.addEvent')}
           </Button>
         </Box>
       </Box>
@@ -320,30 +326,30 @@ export const Events: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Functions</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell>{t('events.eventName')}</TableCell>
+                  <TableCell>{t('events.category')}</TableCell>
+                  <TableCell>{t('events.location')}</TableCell>
+                  <TableCell>{t('events.status')}</TableCell>
+                  <TableCell>{t('events.functions')}</TableCell>
+                  <TableCell>{t('events.created')}</TableCell>
+                  <TableCell align="right">{t('events.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {events.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
-                      No events found
+                      {t('events.noEventsFound')}
                     </TableCell>
                   </TableRow>
                 ) : (
                   events.map((event) => (
                     <TableRow key={getEventId(event)} hover>
                       <TableCell>{event.name}</TableCell>
-                      <TableCell sx={{ textTransform: 'capitalize' }}>{event.category}</TableCell>
+                      <TableCell>{t(`events.categories.${event.category}`)}</TableCell>
                       <TableCell>{event.location}</TableCell>
                       <TableCell>
-                        <Chip label={event.status} color={getStatusColor(event.status)} size="small" />
+                        <Chip label={getStatusLabel(event.status)} color={getStatusColor(event.status)} size="small" />
                       </TableCell>
                       <TableCell>{event.functions.length}</TableCell>
                       <TableCell>{format(new Date(event.created_at), 'MMM dd, yyyy')}</TableCell>
@@ -371,18 +377,18 @@ export const Events: React.FC = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>{editingEventId ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+        <DialogTitle>{editingEventId ? t('events.editEvent') : t('events.createNewEvent')}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
             <TextField
-              label="Event Name"
+              label={t('events.eventName')}
               fullWidth
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
             <TextField
-              label="Description"
+              label={t('events.description')}
               fullWidth
               multiline
               rows={3}
@@ -393,24 +399,24 @@ export const Events: React.FC = () => {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
+                  <InputLabel>{t('events.category')}</InputLabel>
                   <Select
                     value={formData.category}
-                    label="Category"
+                    label={t('events.category')}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value as EventCategory })}
                   >
-                    <MenuItem value="music">Music</MenuItem>
-                    <MenuItem value="sports">Sports</MenuItem>
-                    <MenuItem value="conferences">Conferences</MenuItem>
-                    <MenuItem value="theater">Theater</MenuItem>
-                    <MenuItem value="comedy">Comedy</MenuItem>
-                    <MenuItem value="other">Other</MenuItem>
+                    <MenuItem value="music">{t('events.categories.music')}</MenuItem>
+                    <MenuItem value="sports">{t('events.categories.sports')}</MenuItem>
+                    <MenuItem value="conferences">{t('events.categories.conferences')}</MenuItem>
+                    <MenuItem value="theater">{t('events.categories.theater')}</MenuItem>
+                    <MenuItem value="comedy">{t('events.categories.comedy')}</MenuItem>
+                    <MenuItem value="other">{t('events.categories.other')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Location"
+                  label={t('events.location')}
                   fullWidth
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -422,7 +428,7 @@ export const Events: React.FC = () => {
             {/* Image Upload Section */}
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle1" gutterBottom>
-                Event Image {!editingEventId && <span style={{ color: 'red' }}>*</span>}
+                {t('events.eventImage')} {!editingEventId && <span style={{ color: 'red' }}>*</span>}
               </Typography>
               <Button
                 component="label"
@@ -431,7 +437,7 @@ export const Events: React.FC = () => {
                 fullWidth
                 sx={{ mb: 2 }}
               >
-                {selectedImage ? selectedImage.name : 'Upload Image'}
+                {selectedImage ? selectedImage.name : t('events.uploadImage')}
                 <input
                   type="file"
                   accept="image/*"
@@ -457,18 +463,18 @@ export const Events: React.FC = () => {
             </Box>
 
             <Typography variant="h6" sx={{ mt: 2 }}>
-              Functions/Shows
+              {t('events.functionsShows')}
             </Typography>
 
             {!editingEventId && (
               <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Add Function
+                  {t('events.addFunction')}
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Date & Time"
+                      label={t('events.dateTime')}
                       type="datetime-local"
                       fullWidth
                       InputLabelProps={{ shrink: true }}
@@ -478,7 +484,7 @@ export const Events: React.FC = () => {
                   </Grid>
                   <Grid item xs={3} sm={1.5}>
                     <TextField
-                      label="Hours"
+                      label={t('events.hours')}
                       type="number"
                       fullWidth
                       inputProps={{ min: 0 }}
@@ -492,7 +498,7 @@ export const Events: React.FC = () => {
                   </Grid>
                   <Grid item xs={3} sm={1.5}>
                     <TextField
-                      label="Minutes"
+                      label={t('events.minutes')}
                       type="number"
                       fullWidth
                       inputProps={{ min: 0, max: 59 }}
@@ -506,7 +512,7 @@ export const Events: React.FC = () => {
                   </Grid>
                   <Grid item xs={6} sm={3}>
                     <TextField
-                      label="Capacity"
+                      label={t('events.capacity')}
                       type="number"
                       fullWidth
                       value={newFunction.capacity}
@@ -518,7 +524,7 @@ export const Events: React.FC = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddFunction} fullWidth>
-                      Add Function
+                      {t('events.addFunction')}
                     </Button>
                   </Grid>
                 </Grid>
@@ -528,7 +534,7 @@ export const Events: React.FC = () => {
             {formData.functions.length > 0 && (
               <Box>
                 <Typography variant="subtitle2" gutterBottom>
-                  Added Functions
+                  {t('events.addedFunctions')}
                 </Typography>
                 {formData.functions.map((func, index) => {
                   const hours = Math.floor(func.duration_minutes / 60);
@@ -559,7 +565,7 @@ export const Events: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleCloseDialog}>{t('events.cancel')}</Button>
           <Button
             onClick={handleSubmit}
             variant="contained"
@@ -568,23 +574,23 @@ export const Events: React.FC = () => {
               (editingEventId && false) // Always enabled for edit
             }
           >
-            {editingEventId ? 'Update' : 'Create'}
+            {editingEventId ? t('events.update') : t('events.create')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>{t('events.confirmDelete')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete event "{eventToDelete?.name}"? This action cannot be undone.
+            {t('events.deleteConfirmMessage', { eventName: eventToDelete?.name })}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>Cancel</Button>
+          <Button onClick={() => { setDeleteDialogOpen(false); setEventToDelete(null); }}>{t('events.cancel')}</Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained">
-            Delete
+            {t('events.delete')}
           </Button>
         </DialogActions>
       </Dialog>

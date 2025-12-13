@@ -28,26 +28,28 @@ import {
   Logout as LogoutIcon,
   AccountCircle,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 const drawerWidth = 260;
 
 interface NavItem {
-  text: string;
+  textKey: string;
   icon: React.ReactElement;
   path: string;
 }
 
 const navItems: NavItem[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Users', icon: <PeopleIcon />, path: '/users' },
-  { text: 'Events', icon: <EventIcon />, path: '/events' },
-  { text: 'Tickets', icon: <TicketIcon />, path: '/tickets' },
-  { text: 'Bookings', icon: <BookingIcon />, path: '/bookings' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+  { textKey: 'nav.dashboard', icon: <DashboardIcon />, path: '/' },
+  { textKey: 'nav.users', icon: <PeopleIcon />, path: '/users' },
+  { textKey: 'nav.events', icon: <EventIcon />, path: '/events' },
+  { textKey: 'nav.tickets', icon: <TicketIcon />, path: '/tickets' },
+  { textKey: 'nav.bookings', icon: <BookingIcon />, path: '/bookings' },
+  { textKey: 'nav.settings', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 export const MainLayout: React.FC = () => {
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user, logout } = useAuth();
@@ -86,13 +88,13 @@ export const MainLayout: React.FC = () => {
         }}
       >
         <Typography variant="h6" noWrap component="div" fontWeight="bold">
-          Unabanda
+          {t('appName')}
         </Typography>
       </Toolbar>
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.textKey} disablePadding>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => handleNavigation(item.path)}
@@ -111,7 +113,7 @@ export const MainLayout: React.FC = () => {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.text}
+                primary={t(item.textKey)}
                 primaryTypographyProps={{
                   fontWeight: location.pathname === item.path ? 600 : 400,
                 }}
@@ -146,7 +148,7 @@ export const MainLayout: React.FC = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {navItems.find((item) => item.path === location.pathname)?.text || 'Dashboard'}
+            {t(navItems.find((item) => item.path === location.pathname)?.textKey || 'nav.dashboard')}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2" sx={{ display: { xs: 'none', md: 'block' } }}>
@@ -175,14 +177,14 @@ export const MainLayout: React.FC = () => {
               <ListItemIcon>
                 <AccountCircle fontSize="small" />
               </ListItemIcon>
-              Profile
+              {t('nav.profile')}
             </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              Logout
+              {t('nav.logout')}
             </MenuItem>
           </Menu>
         </Toolbar>

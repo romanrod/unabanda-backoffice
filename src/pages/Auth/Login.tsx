@@ -12,9 +12,11 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -71,10 +73,10 @@ export const Login: React.FC = () => {
                 <LockOutlined sx={{ fontSize: 40, color: 'white' }} />
               </Box>
               <Typography component="h1" variant="h4" fontWeight="bold">
-                Unabanda Backoffice
+                {t('login.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary" mt={1}>
-                Admin Panel - Sign in to continue
+                {t('login.subtitle')}
               </Typography>
             </Box>
 
@@ -90,7 +92,7 @@ export const Login: React.FC = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('login.emailLabel')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -103,7 +105,7 @@ export const Login: React.FC = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('login.passwordLabel')}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -121,14 +123,14 @@ export const Login: React.FC = () => {
                 {loading ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
-                  'Sign In'
+                  t('login.signInButton')
                 )}
               </Button>
             </form>
 
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                Admin access only. Contact your system administrator if you need access.
+                {t('login.adminAccessOnly')}
               </Typography>
             </Box>
           </CardContent>

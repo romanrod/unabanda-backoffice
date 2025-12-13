@@ -22,6 +22,7 @@ import {
   AttachMoney as MoneyIcon,
 } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import type { DashboardStats } from '../../types';
@@ -66,6 +67,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => (
 );
 
 export const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { showNotification } = useNotification();
@@ -80,7 +82,7 @@ export const Dashboard: React.FC = () => {
       setStats(data);
     } catch (error: any) {
       console.error('Failed to load dashboard stats:', error);
-      showNotification('Failed to load dashboard statistics', 'error');
+      showNotification(t('dashboard.failedToLoad'), 'error');
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,7 @@ export const Dashboard: React.FC = () => {
   if (!stats) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography>Failed to load dashboard data</Typography>
+        <Typography>{t('dashboard.failedToLoad')}</Typography>
       </Box>
     );
   }
@@ -116,28 +118,32 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    return t(`bookings.statuses.${status}`, status);
+  };
+
   return (
     <Box>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Dashboard
+        {t('dashboard.title')}
       </Typography>
       <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
-        Welcome to Unabanda Admin Panel
+        {t('dashboard.welcome')}
       </Typography>
 
       <Grid container spacing={3}>
         {/* Stat Cards */}
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard title="Total Users" value={stats.totalUsers} icon={<PeopleIcon />} color="#667eea" />
+          <StatCard title={t('dashboard.totalUsers')} value={stats.totalUsers} icon={<PeopleIcon />} color="#667eea" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard title="Total Events" value={stats.totalEvents} icon={<EventIcon />} color="#764ba2" />
+          <StatCard title={t('dashboard.totalEvents')} value={stats.totalEvents} icon={<EventIcon />} color="#764ba2" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard title="Total Bookings" value={stats.totalBookings} icon={<BookingIcon />} color="#f093fb" />
+          <StatCard title={t('dashboard.totalBookings')} value={stats.totalBookings} icon={<BookingIcon />} color="#f093fb" />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard title="Total Revenue" value={stats.totalRevenue} icon={<MoneyIcon />} color="#43e97b" />
+          <StatCard title={t('dashboard.totalRevenue')} value={stats.totalRevenue} icon={<MoneyIcon />} color="#43e97b" />
         </Grid>
 
         {/* Charts */}
@@ -145,7 +151,7 @@ export const Dashboard: React.FC = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Events by Category
+                {t('dashboard.eventsByCategory')}
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -174,7 +180,7 @@ export const Dashboard: React.FC = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Revenue by Month
+                {t('dashboard.revenueByMonth')}
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={stats.revenueByMonth}>
@@ -195,26 +201,26 @@ export const Dashboard: React.FC = () => {
           <Card elevation={2}>
             <CardContent>
               <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ px: 2, pt: 2 }}>
-                Recent Bookings
+                {t('dashboard.recentBookings')}
               </Typography>
               <TableContainer component={Paper} variant="outlined" sx={{ width: '100%', overflow: 'auto' }}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Booking ID</TableCell>
-                      <TableCell>User ID</TableCell>
-                      <TableCell>Event ID</TableCell>
-                      <TableCell align="right">Amount</TableCell>
-                      <TableCell>Payment Method</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Date</TableCell>
+                      <TableCell>{t('dashboard.bookingId')}</TableCell>
+                      <TableCell>{t('dashboard.userId')}</TableCell>
+                      <TableCell>{t('dashboard.eventId')}</TableCell>
+                      <TableCell align="right">{t('dashboard.amount')}</TableCell>
+                      <TableCell>{t('dashboard.paymentMethod')}</TableCell>
+                      <TableCell>{t('dashboard.status')}</TableCell>
+                      <TableCell>{t('dashboard.date')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {stats.recentBookings.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} align="center">
-                          No bookings yet
+                          {t('dashboard.noBookingsYet')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -231,10 +237,9 @@ export const Dashboard: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={booking.status}
+                              label={getStatusLabel(booking.status)}
                               color={getStatusColor(booking.status)}
                               size="small"
-                              sx={{ textTransform: 'capitalize' }}
                             />
                           </TableCell>
                           <TableCell>
