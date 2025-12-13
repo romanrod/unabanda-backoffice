@@ -188,11 +188,11 @@ export const Users: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('users.fullName')}</TableCell>
-                  <TableCell>{t('users.email')}</TableCell>
-                  <TableCell>{t('users.role')}</TableCell>
-                  <TableCell>{t('users.status')}</TableCell>
-                  <TableCell>{t('users.created')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('users.fullName')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('users.email')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('users.role')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('users.status')}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{t('users.created')}</TableCell>
                   <TableCell align="right">{t('users.actions')}</TableCell>
                 </TableRow>
               </TableHead>
