@@ -181,8 +181,8 @@ export const Users: React.FC = () => {
       </Box>
 
       <Card elevation={2}>
-        <CardContent>
-          <TableContainer component={Paper} variant="outlined">
+        <CardContent sx={{ p: 0 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ width: '100%', overflow: 'auto' }}>
             <Table>
               <TableHead>
                 <TableRow>

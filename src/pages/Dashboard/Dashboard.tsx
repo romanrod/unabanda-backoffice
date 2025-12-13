@@ -194,10 +194,10 @@ export const Dashboard: React.FC = () => {
         <Grid item xs={12}>
           <Card elevation={2}>
             <CardContent>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ px: 2, pt: 2 }}>
                 Recent Bookings
               </Typography>
-              <TableContainer component={Paper} variant="outlined">
+              <TableContainer component={Paper} variant="outlined" sx={{ width: '100%', overflow: 'auto' }}>
                 <Table>
                   <TableHead>
                     <TableRow>
