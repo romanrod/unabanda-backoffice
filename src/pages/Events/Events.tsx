@@ -244,6 +244,14 @@ export const Events: React.FC = () => {
   const handlePublish = async (eventId: string) => {
     console.log('📢 [Events] Publishing event:', eventId);
     try {
+      // Verificar que el evento tenga tickets asociados
+      const tickets = await api.getTickets(eventId);
+
+      if (!tickets || tickets.length === 0) {
+        showNotification('Agregar tickets al evento para publicar', 'error');
+        return;
+      }
+
       await api.publishEvent(eventId);
       showNotification('Event published successfully', 'success');
       loadEvents();
