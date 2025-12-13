@@ -67,6 +67,8 @@ export const Events: React.FC = () => {
   const [newFunction, setNewFunction] = useState({
     date_time: '',
     duration_minutes: 120,
+    duration_hours: 2,
+    duration_mins: 0,
     capacity: 100,
     available_seats: 100,
   });
@@ -146,13 +148,22 @@ export const Events: React.FC = () => {
   };
 
   const handleAddFunction = () => {
+    // Calculate total minutes from hours and minutes
+    const totalMinutes = (newFunction.duration_hours * 60) + newFunction.duration_mins;
+
     setFormData({
       ...formData,
-      functions: [...formData.functions, { ...newFunction, id: Date.now().toString() }],
+      functions: [...formData.functions, {
+        ...newFunction,
+        duration_minutes: totalMinutes,
+        id: Date.now().toString()
+      }],
     });
     setNewFunction({
       date_time: '',
       duration_minutes: 120,
+      duration_hours: 2,
+      duration_mins: 0,
       capacity: 100,
       available_seats: 100,
     });
@@ -465,15 +476,32 @@ export const Events: React.FC = () => {
                       onChange={(e) => setNewFunction({ ...newFunction, date_time: e.target.value })}
                     />
                   </Grid>
-                  <Grid item xs={6} sm={3}>
+                  <Grid item xs={3} sm={1.5}>
                     <TextField
-                      label="Duration (min)"
+                      label="Hours"
                       type="number"
                       fullWidth
-                      value={newFunction.duration_minutes}
-                      onChange={(e) =>
-                        setNewFunction({ ...newFunction, duration_minutes: parseInt(e.target.value) })
-                      }
+                      inputProps={{ min: 0 }}
+                      value={newFunction.duration_hours}
+                      onChange={(e) => {
+                        const hours = Math.max(0, parseInt(e.target.value) || 0);
+                        const totalMinutes = (hours * 60) + newFunction.duration_mins;
+                        setNewFunction({ ...newFunction, duration_hours: hours, duration_minutes: totalMinutes });
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={3} sm={1.5}>
+                    <TextField
+                      label="Minutes"
+                      type="number"
+                      fullWidth
+                      inputProps={{ min: 0, max: 59 }}
+                      value={newFunction.duration_mins}
+                      onChange={(e) => {
+                        const mins = Math.min(59, Math.max(0, parseInt(e.target.value) || 0));
+                        const totalMinutes = (newFunction.duration_hours * 60) + mins;
+                        setNewFunction({ ...newFunction, duration_mins: mins, duration_minutes: totalMinutes });
+                      }}
                     />
                   </Grid>
                   <Grid item xs={6} sm={3}>
@@ -502,22 +530,30 @@ export const Events: React.FC = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   Added Functions
                 </Typography>
-                {formData.functions.map((func, index) => (
-                  <Box
-                    key={index}
-                    sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'grey.50', mb: 1 }}
-                  >
-                    <Typography variant="body2">
-                      {format(new Date(func.date_time), 'MMM dd, yyyy HH:mm')} - {func.duration_minutes}min -
-                      Capacity: {func.capacity}
-                    </Typography>
-                    {!editingEventId && (
-                      <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    )}
-                  </Box>
-                ))}
+                {formData.functions.map((func, index) => {
+                  const hours = Math.floor(func.duration_minutes / 60);
+                  const mins = func.duration_minutes % 60;
+                  const durationDisplay = hours > 0
+                    ? `${hours}h ${mins > 0 ? `${mins}min` : ''}`
+                    : `${mins}min`;
+
+                  return (
+                    <Box
+                      key={index}
+                      sx={{ display: 'flex', justifyContent: 'space-between', p: 1, bgcolor: 'grey.50', mb: 1 }}
+                    >
+                      <Typography variant="body2">
+                        {format(new Date(func.date_time), 'MMM dd, yyyy HH:mm')} - {durationDisplay.trim()} -
+                        Capacity: {func.capacity}
+                      </Typography>
+                      {!editingEventId && (
+                        <IconButton size="small" onClick={() => handleRemoveFunction(index)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
+                  );
+                })}
               </Box>
             )}
           </Box>
